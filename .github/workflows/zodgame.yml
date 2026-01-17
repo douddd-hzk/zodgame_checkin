@@ -2,27 +2,35 @@ name: zodgame
 
 on:
   schedule:
-  - cron: "0 0 * * *"
-  
+    - cron: "0 0 * * *"
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-    
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install requirements
-      run: |
-        pip3 install -r ./zodgame/requirements.txt
-    - name: Run 
-      run: |
-        python3 ./zodgame/zodgame.py "${{secrets.ZODGAME_COOKIE}}"
-    - uses: liskin/gh-workflow-keepalive@main
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          # 这样可以确保 runner 强制切换到 3.11 环境
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools
+          pip install -r ./zodgame/requirements.txt
+
+      - name: Run
+        run: |
+          python ./zodgame/zodgame.py "${{secrets.ZODGAME_COOKIE}}"
+
+      - name: Keepalive
+        uses: liskin/gh-workflow-keepalive@main
